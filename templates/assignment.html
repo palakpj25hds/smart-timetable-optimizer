@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Assign Teacher and Room</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="/teacher">Teachers</a>
+        <a href="/subject">Subjects</a>
+        <a href="/classroom">Classrooms</a>
+        <a href="/class">Classes</a>
+        <a href="/assignment">Assignments</a>
+    </div>
+</nav>
+
+<h1>Assign Teacher and Room</h1>
+
+<form action="/save_assignment" method="POST">
+
+   <label>Class</label><br>
+
+<select name="class_name">
+
+    {% for class in classes %}
+
+    <option>{{ class[0] }}</option>
+
+    {% endfor %}
+
+</select>
+
+    <br><br>
+
+<label>Subject</label><br>
+
+ <select name="subject_name">
+
+    {% for subject in subjects %}
+
+    <option>{{ subject[0] }}</option>
+
+    {% endfor %}
+
+
+ </select>
+
+    <br><br>
+
+    <label>Teacher</label><br>
+
+<select name="teacher_name">
+
+    {% for teacher in teachers %}
+
+    <option>{{ teacher[0] }}</option>
+
+    {% endfor %}
+
+</select>
+
+    <br><br>
+<label>Room</label><br>
+
+<select name="room_name">
+
+    {% for classroom in classrooms %}
+
+    <option>{{ classroom[0] }}</option>
+
+    {% endfor %}
+
+</select>
+
+    <br><br>
+
+    <button type="submit">
+    Save Assignment
+</button>
+
+</form>
+
+<br><br>
+
+<a href="/view_assignments">
+    View Saved Assignments
+</a>
+<button type="submit">
+    Save Assignment
+</button>
+
+</form>
+
+<br><br>
+
+<a href="/view_assignments">
+    View Saved Assignments
+</a>
+
+</body>
+</html>

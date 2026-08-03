@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Assignments</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="/assignment">Assignments</a>
+    </div>
+</nav>
+
+
+<h1>Saved Assignments</h1>
+
+
+<table border="1">
+
+<tr>
+    <th>ID</th>
+    <th>Class</th>
+    <th>Subject</th>
+    <th>Teacher</th>
+    <th>Room</th>
+</tr>
+
+
+{% for assignment in assignments %}
+
+<tr>
+    <td>{{ assignment[0] }}</td>
+    <td>{{ assignment[1] }}</td>
+    <td>{{ assignment[2] }}</td>
+    <td>{{ assignment[3] }}</td>
+    <td>{{ assignment[4] }}</td>
+</tr>
+
+{% endfor %}
+
+
+</table>
+
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Generated Timetable</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="/assignment">Assignments</a>
+        <a href="/generate">Generate</a>
+    </div>
+</nav>
+
+
+<h1>Generated Timetable</h1>
+
+
+<table border="1">
+
+<tr>
+    <th>Day</th>
+    <th>12:00 - 12:55</th>
+    <th>12:55 - 1:50</th>
+    <th>2:00 - 2:25</th>
+    <th>2:25 - 3:20</th>
+    <th>3:20 - 4:25</th>
+</tr>
+
+
+{% for day, slots in timetable.items() %}
+
+<tr>
+
+<td>{{ day }}</td>
+
+
+{% for time, assignment in slots.items() %}
+
+<td>
+
+<td>
+
+{% if assignment %}
+
+    {% if assignment[0] == "BREAK" %}
+
+        <b>BREAK</b>
+
+    {% else %}
+
+        <b>{{ assignment[0] }}</b><br>
+        {{ assignment[1] }}<br>
+        {{ assignment[2] }}<br>
+        Room: {{ assignment[3] }}
+
+    {% endif %}
+
+{% else %}
+
+    Free
+
+{% endif %}
+
+
+</td>
+
+
+{% endfor %}
+
+</tr>
+
+{% endfor %}
+
+
+</table>
+
+
+</body>
+
+</html>

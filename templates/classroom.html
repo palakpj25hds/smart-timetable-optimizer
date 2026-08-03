@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Classrooms</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+
+    <div>
+        <a href="/">Home</a>
+        <a href="/teacher">Teachers</a>
+        <a href="/subject">Subjects</a>
+        <a href="/classroom">Classrooms</a>
+        <a href="/class">Classes</a>
+    </div>
+</nav>
+
+<section class="hero">
+
+<h1>Add Classroom</h1>
+
+<form action="/save_classroom" method="POST">
+
+    <label>Room Name</label><br>
+    <input type="text" name="room_name"><br><br>
+
+    <label>Capacity</label><br>
+    <input type="number" name="capacity"><br><br>
+
+    <label>Room Type</label><br>
+    <input type="text" name="room_type"><br><br>
+
+    <button type="submit">Save Classroom</button>
+
+</form>
+
+</section>
+
+</body>
+</html>
