@@ -4,7 +4,6 @@
 <head>
     <title>Generated Timetable</title>
     <link rel="stylesheet" href="/static/style.css">
-
 </head>
 
 <body>
@@ -22,6 +21,10 @@
 
 <h1>Generated Timetable</h1>
 
+
+{% for class_name, timetable in all_timetables.items() %}
+
+<h2>{{ class_name }}</h2>
 
 <table border="1">
 
@@ -43,8 +46,6 @@
 
 
 {% for time, assignment in slots.items() %}
-
-<td>
 
 <td>
 
@@ -81,6 +82,10 @@
 
 
 </table>
+
+<br><br>
+
+{% endfor %}
 
 
 </body>
