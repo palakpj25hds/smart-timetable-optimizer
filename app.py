@@ -213,12 +213,10 @@ def view_assignments():
 
 @app.route("/generate")
 def generate():
-
-    timetable = generate_timetable()
-
+    all_timetables = generate_timetable()
     return render_template(
         "timetable.html",
-        timetable=timetable
+        all_timetables=all_timetables
     )
 
     # ---------------- RUN APP ----------------
