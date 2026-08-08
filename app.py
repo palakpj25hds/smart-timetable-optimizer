@@ -194,8 +194,6 @@ def save_assignment():
     return "Assignment Saved Successfully!"
 
 
-
-
 @app.route("/view_assignments")
 def view_assignments():
 
@@ -239,7 +237,39 @@ def run_migration():
     return result
 
 
-    # ---------------- RUN APP ----------------
+# ---------------- SET PASSWORD (teacher sets their own) ----------------
+
+@app.route("/set-password-page")
+def set_password_page():
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT teacher_name FROM teachers")
+    teachers = cursor.fetchall()
+    conn.close()
+
+    return render_template("set_password.html", teachers=teachers)
+
+
+@app.route("/save_password", methods=["POST"])
+def save_password():
+
+    teacher_name = request.form["teacher_name"]
+    password = request.form["password"]
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE teachers SET password = ? WHERE teacher_name = ?",
+        (password, teacher_name)
+    )
+    conn.commit()
+    conn.close()
+
+    return "Password Set Successfully!"
+
+
+# ---------------- RUN APP ----------------
 
 if __name__ == "__main__":
     app.run(debug=True)
