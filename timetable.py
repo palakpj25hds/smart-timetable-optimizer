@@ -20,13 +20,11 @@ def generate_timetable():
         "3:20 - 4:25"
     ]
 
-    # Group assignments by class_name (FY, SY, TY, etc.)
     grouped = {}
     for a in all_assignments:
         class_name = a[0]
         grouped.setdefault(class_name, []).append(a)
 
-    # Build a separate timetable for each class
     all_timetables = {}
     for class_name, assignments in grouped.items():
         random.shuffle(assignments)
@@ -44,8 +42,8 @@ def generate_timetable():
             for slot in slots:
                 if "BREAK" in slot:
                     continue
-                if index < len(assignments):
-                    timetable[day][slot] = assignments[index]
+                if assignments:
+                    timetable[day][slot] = assignments[index % len(assignments)]
                     index += 1
 
         all_timetables[class_name] = timetable
