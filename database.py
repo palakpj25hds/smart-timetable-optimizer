@@ -13,23 +13,24 @@ def create_database():
         teacher_id INTEGER PRIMARY KEY AUTOINCREMENT,
         teacher_name TEXT NOT NULL,
         email TEXT,
-        department TEXT
+        department TEXT,
+        password TEXT
     )
     """)
 
     # ---------------- Subjects ----------------
 
-   cursor.execute("""
-CREATE TABLE IF NOT EXISTS subjects(
-    subject_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    class_name TEXT NOT NULL,
-    subject_name TEXT NOT NULL,
-    department TEXT,
-    periods INTEGER
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS subjects(
+        subject_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_name TEXT NOT NULL,
+        subject_name TEXT NOT NULL,
+        department TEXT,
+        periods INTEGER
+    )
+    """)
 
-        # ---------------- Classrooms ----------------
+    # ---------------- Classrooms ----------------
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS classrooms(
@@ -49,7 +50,7 @@ CREATE TABLE IF NOT EXISTS subjects(
     )
     """)
 
-       # ---------------- Assignments ----------------
+    # ---------------- Assignments ----------------
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS assignments(
@@ -61,6 +62,16 @@ CREATE TABLE IF NOT EXISTS subjects(
     )
     """)
 
+    # ---------------- Attendance ----------------
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS attendance(
+        attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_name TEXT NOT NULL,
+        date TEXT NOT NULL,
+        status TEXT NOT NULL
+    )
+    """)
 
     conn.commit()
     conn.close()
