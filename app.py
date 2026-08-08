@@ -193,7 +193,7 @@ def save_assignment():
 
     return "Assignment Saved Successfully!"
 
-    
+
 
 
 @app.route("/view_assignments")
@@ -218,6 +218,26 @@ def generate():
         "timetable.html",
         all_timetables=all_timetables
     )
+
+
+# ---------------- MIGRATION (temporary) ----------------
+
+@app.route("/run-migration")
+def run_migration():
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("ALTER TABLE teachers ADD COLUMN password TEXT")
+        conn.commit()
+        result = "Password column added successfully!"
+    except sqlite3.OperationalError as e:
+        result = f"Already exists or error: {e}"
+
+    conn.close()
+    return result
+
 
     # ---------------- RUN APP ----------------
 
