@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+    <div>
+        <a href="/">Home</a>
+    </div>
+</nav>
+
+<h1>Teacher Login</h1>
+
+<form action="/teacher-login" method="POST">
+
+    <label>Select Your Name:</label><br>
+    <select name="teacher_name" required>
+        <option value="">-- Select --</option>
+        {% for t in teachers %}
+            <option value="{{ t[0] }}">{{ t[0] }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">Login</button>
+
+</form>
+
+</body>
+</html>
