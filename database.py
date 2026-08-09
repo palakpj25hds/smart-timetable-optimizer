@@ -6,8 +6,6 @@ def create_database():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    # ---------------- Teachers ----------------
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS teachers(
         teacher_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,8 +15,6 @@ def create_database():
         password TEXT
     )
     """)
-
-    # ---------------- Subjects ----------------
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS subjects(
@@ -30,8 +26,6 @@ def create_database():
     )
     """)
 
-    # ---------------- Classrooms ----------------
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS classrooms(
         classroom_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,16 +35,12 @@ def create_database():
     )
     """)
 
-    # ---------------- Classes ----------------
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS classes(
         class_id INTEGER PRIMARY KEY AUTOINCREMENT,
         class_name TEXT NOT NULL
     )
     """)
-
-    # ---------------- Assignments ----------------
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS assignments(
@@ -61,8 +51,6 @@ def create_database():
         room_name TEXT NOT NULL
     )
     """)
-
-    # ---------------- Attendance ----------------
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS attendance(
