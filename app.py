@@ -5,6 +5,7 @@ from timetable import generate_timetable
 
 app = Flask(__name__)
 app.secret_key = "smart_timetable_secret_key"
+app.config['DEBUG'] = True
 
 
 # ---------------- HOME ----------------
