@@ -5,7 +5,6 @@ from timetable import generate_timetable
 
 app = Flask(__name__)
 app.secret_key = "smart_timetable_secret_key"
-app.config['DEBUG'] = True
 
 
 # ---------------- HOME ----------------
@@ -270,23 +269,26 @@ def save_password():
 @app.route("/teacher-login", methods=["GET", "POST"])
 def teacher_login():
     if request.method == "POST":
-        teacher_name = request.form["teacher_name"]
-        password = request.form["password"]
+        try:
+            teacher_name = request.form["teacher_name"]
+            password = request.form["password"]
 
-        conn = sqlite3.connect("database.db")
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM teachers WHERE teacher_name = ? AND password = ?",
-            (teacher_name, password)
-        )
-        teacher = cursor.fetchone()
-        conn.close()
+            conn = sqlite3.connect("database.db")
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM teachers WHERE teacher_name = ? AND password = ?",
+                (teacher_name, password)
+            )
+            teacher = cursor.fetchone()
+            conn.close()
 
-        if teacher:
-            session["teacher_name"] = teacher_name
-            return redirect(url_for("teacher_dashboard"))
-        else:
-            return "Invalid name or password. <a href='/teacher-login'>Try again</a>"
+            if teacher:
+                session["teacher_name"] = teacher_name
+                return redirect(url_for("teacher_dashboard"))
+            else:
+                return "Invalid name or password. <a href='/teacher-login'>Try again</a>"
+        except Exception as e:
+            return f"ERROR: {str(e)}"
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -299,30 +301,36 @@ def teacher_login():
 
 @app.route("/teacher-dashboard")
 def teacher_dashboard():
-    if "teacher_name" not in session:
-        return redirect(url_for("teacher_login"))
+    try:
+        if "teacher_name" not in session:
+            return redirect(url_for("teacher_login"))
 
-    return render_template("teacher_dashboard.html", teacher_name=session["teacher_name"])
+        return render_template("teacher_dashboard.html", teacher_name=session["teacher_name"])
+    except Exception as e:
+        return f"ERROR: {str(e)}"
 
 
 @app.route("/mark-absent-today", methods=["POST"])
 def mark_absent_today():
-    if "teacher_name" not in session:
-        return redirect(url_for("teacher_login"))
+    try:
+        if "teacher_name" not in session:
+            return redirect(url_for("teacher_login"))
 
-    teacher_name = session["teacher_name"]
-    today = datetime.now().strftime("%Y-%m-%d")
+        teacher_name = session["teacher_name"]
+        today = datetime.now().strftime("%Y-%m-%d")
 
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO attendance (teacher_name, date, status) VALUES (?, ?, ?)",
-        (teacher_name, today, "absent")
-    )
-    conn.commit()
-    conn.close()
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO attendance (teacher_name, date, status) VALUES (?, ?, ?)",
+            (teacher_name, today, "absent")
+        )
+        conn.commit()
+        conn.close()
 
-    return f"{teacher_name} marked absent for today. Substitutes assigned automatically. <a href='/generate'>View Timetable</a>"
+        return f"{teacher_name} marked absent for today. Substitutes assigned automatically. <a href='/generate'>View Timetable</a>"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
 
 
 @app.route("/teacher-logout")
