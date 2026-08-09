@@ -7,6 +7,31 @@ app = Flask(__name__)
 app.secret_key = "smart_timetable_secret_key"
 
 
+def ensure_database_ready():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("ALTER TABLE teachers ADD COLUMN password TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS attendance(
+        attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        teacher_name TEXT NOT NULL,
+        date TEXT NOT NULL,
+        status TEXT NOT NULL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+ensure_database_ready()
+
+
 # ---------------- HOME ----------------
 
 @app.route("/")
@@ -193,45 +218,6 @@ def generate():
         "timetable.html",
         all_timetables=all_timetables
     )
-
-
-# ---------------- MIGRATION: password column (temporary) ----------------
-
-@app.route("/run-migration")
-def run_migration():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    try:
-        cursor.execute("ALTER TABLE teachers ADD COLUMN password TEXT")
-        conn.commit()
-        result = "Password column added successfully!"
-    except sqlite3.OperationalError as e:
-        result = f"Already exists or error: {e}"
-    conn.close()
-    return result
-
-
-# ---------------- MIGRATION: attendance table (temporary) ----------------
-
-@app.route("/run-migration-attendance")
-def run_migration_attendance():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS attendance(
-            attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            teacher_name TEXT NOT NULL,
-            date TEXT NOT NULL,
-            status TEXT NOT NULL
-        )
-        """)
-        conn.commit()
-        result = "Attendance table created successfully!"
-    except sqlite3.OperationalError as e:
-        result = f"Error: {e}"
-    conn.close()
-    return result
 
 
 # ---------------- SET PASSWORD ----------------
