@@ -99,6 +99,31 @@ def bulk_add_teachers():
     return f"Added teachers: {added}"
 
 
+@app.route("/clean-duplicate-teachers")
+def clean_duplicate_teachers():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT teacher_id, teacher_name FROM teachers ORDER BY teacher_id")
+    all_rows = cursor.fetchall()
+
+    seen = set()
+    deleted = []
+
+    for teacher_id, name in all_rows:
+        clean_name = name.strip()
+        if clean_name in seen:
+            cursor.execute("DELETE FROM teachers WHERE teacher_id = ?", (teacher_id,))
+            deleted.append(name)
+        else:
+            seen.add(clean_name)
+
+    conn.commit()
+    conn.close()
+
+    return f"Deleted duplicate teachers: {deleted}"
+
+
 @app.route("/view_teachers")
 def view_teachers():
     conn = sqlite3.connect("database.db")
