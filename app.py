@@ -64,64 +64,36 @@ def save_teacher():
     return "Teacher Saved Successfully!"
 
 
-@app.route("/bulk-add-teachers")
-def bulk_add_teachers():
+@app.route("/reset-teachers-clean")
+def reset_teachers_clean():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    new_teachers = [
-        "Rashmi Prabha",
-        "Sana Chougule",
-        "Tina Tommy",
-        "Palak Jadhav",
-        "Varsha Shinde",
-        "Vishal Kumar",
-        "Anita Desai",
-        "Ramesh Iyer",
-        "Priya Nair",
-        "Suresh Patil"
+    cursor.execute("DELETE FROM teachers")
+
+    clean_teachers = [
+        ("Varsha Shinde", "varsha@sies.edu", "Data Science"),
+        ("Rashmi Prabha", "rashmi@sies.edu", "Data Science"),
+        ("Tina Tommy", "tina@sies.edu", "Data Science"),
+        ("Palak Jadhav", "palak@sies.edu", "Data Science"),
+        ("Sana Chougule", "sana@sies.edu", "Data Science"),
+        ("Anita Desai", "anita@sies.edu", "Data Science"),
+        ("Ramesh Iyer", "ramesh@sies.edu", "Data Science"),
+        ("Priya Nair", "priya@sies.edu", "Data Science"),
+        ("Suresh Patil", "suresh@sies.edu", "Data Science"),
+        ("Vishal Kumar", "vishal@sies.edu", "Data Science")
     ]
 
-    added = []
-    for name in new_teachers:
-        cursor.execute("SELECT * FROM teachers WHERE teacher_name = ?", (name,))
-        exists = cursor.fetchone()
-        if not exists:
-            cursor.execute(
-                "INSERT INTO teachers (teacher_name, email, department) VALUES (?, ?, ?)",
-                (name, "", "DS")
-            )
-            added.append(name)
+    for name, email, dept in clean_teachers:
+        cursor.execute(
+            "INSERT INTO teachers (teacher_name, email, department) VALUES (?, ?, ?)",
+            (name, email, dept)
+        )
 
     conn.commit()
     conn.close()
 
-    return f"Added teachers: {added}"
-
-
-@app.route("/clean-duplicate-teachers")
-def clean_duplicate_teachers():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT teacher_id, teacher_name FROM teachers ORDER BY teacher_id")
-    all_rows = cursor.fetchall()
-
-    seen = set()
-    deleted = []
-
-    for teacher_id, name in all_rows:
-        clean_name = name.strip()
-        if clean_name in seen:
-            cursor.execute("DELETE FROM teachers WHERE teacher_id = ?", (teacher_id,))
-            deleted.append(name)
-        else:
-            seen.add(clean_name)
-
-    conn.commit()
-    conn.close()
-
-    return f"Deleted duplicate teachers: {deleted}"
+    return "Teachers table reset with clean unique names!"
 
 
 @app.route("/view_teachers")
