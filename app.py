@@ -64,6 +64,41 @@ def save_teacher():
     return "Teacher Saved Successfully!"
 
 
+@app.route("/bulk-add-teachers")
+def bulk_add_teachers():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    new_teachers = [
+        "Rashmi Prabha",
+        "Sana Chougule",
+        "Tina Tommy",
+        "Palak Jadhav",
+        "Varsha Shinde",
+        "Vishal Kumar",
+        "Anita Desai",
+        "Ramesh Iyer",
+        "Priya Nair",
+        "Suresh Patil"
+    ]
+
+    added = []
+    for name in new_teachers:
+        cursor.execute("SELECT * FROM teachers WHERE teacher_name = ?", (name,))
+        exists = cursor.fetchone()
+        if not exists:
+            cursor.execute(
+                "INSERT INTO teachers (teacher_name, email, department) VALUES (?, ?, ?)",
+                (name, "", "DS")
+            )
+            added.append(name)
+
+    conn.commit()
+    conn.close()
+
+    return f"Added teachers: {added}"
+
+
 @app.route("/view_teachers")
 def view_teachers():
     conn = sqlite3.connect("database.db")
