@@ -24,125 +24,105 @@ def generate_timetable():
     slots = [
         "12:00 - 12:55",
         "12:55 - 1:50",
-        "2:00 - 2:25",
+        "2:00 - 2:25 (BREAK)",
         "2:25 - 3:20",
         "3:20 - 4:25"
     ]
-
-    # SY DS ka Exact SIES Schedule Grid
-    sy_fixed_grid = {
-        "Monday": {"12:00 - 12:55": "EC(AEC)", "12:55 - 1:50": "DSA", "2:25 - 3:20": "FML", "3:20 - 4:25": "DSA"},
-        "Tuesday": {"12:00 - 12:55": "DBMS", "12:55 - 1:50": "FML", "2:25 - 3:20": "SI", "3:20 - 4:25": "CC"},
-        "Wednesday": {"12:00 - 12:55": "OE (PD/Adv/SMM)", "12:55 - 1:50": "EC(AEC)", "2:25 - 3:20": "DBMS (PRAC)", "3:20 - 4:25": "DBMS (PRAC)"},
-        "Thursday": {"12:00 - 12:55": "OE (PD/Adv/SMM)", "12:55 - 1:50": "DSA", "2:25 - 3:20": "DSA (PRAC)", "3:20 - 4:25": "DSA (PRAC)"},
-        "Friday": {"12:00 - 12:55": "FML (PRAC)", "12:55 - 1:50": "FML (PRAC)", "2:25 - 3:20": "SI", "3:20 - 4:25": "BLANK"},
-        "Saturday": {"12:00 - 12:55": "SI (PRAC)", "12:55 - 1:50": "SI (PRAC)", "2:25 - 3:20": "SI", "3:20 - 4:25": "FML"}
-    }
 
     grouped = {}
     for a in all_assignments:
         grouped.setdefault(a[0], []).append(list(a))
 
-    # Single global tracker across ALL classes to avoid teacher collisions
-    occupied = {}
+    occupied_teachers = {}
+    occupied_rooms = {}
+
     all_timetables = {}
-
-    # Sort classes so SY is processed first to reserve its fixed timetable slots
-    class_order = sorted(grouped.keys(), key=lambda c: 0 if "SY" in c.upper() else 1)
-
-    for class_name in class_order:
-        assignments = grouped[class_name]
-        timetable = {day: {slot: ("BREAK", "", "", "") if "2:00 - 2:25" in slot else None for slot in slots} for day in days}
-        subject_map = {entry[1].strip().upper(): entry for entry in assignments}
-
-        # --- 1. SY DS TIMETABLE (SIES EXACT GRID) ---
-        if "SY" in class_name.upper():
-            for day in days:
-                for slot in slots:
-                    if "2:00 - 2:25" in slot:
-                        continue
-
-                    target = sy_fixed_grid.get(day, {}).get(slot, "BLANK")
-                    if target == "BLANK":
-                        timetable[day][slot] = ("BLANK / Free", "", "", "")
-                        continue
-
-                    matched_entry = None
-                    for subj_key, entry_val in subject_map.items():
-                        if target.upper() in subj_key or subj_key in target.upper():
-                            matched_entry = list(entry_val)
-                            break
-
-                    if matched_entry:
-                        teacher_name = matched_entry[2]
-                        occupied.setdefault((day, slot), set())
-
-                        # Substitute handling if absent
-                        if day == today_name and teacher_name in absent_teachers:
-                            free_subs = [t for t in all_teachers if t not in absent_teachers and t not in occupied[(day, slot)]]
-                            if free_subs:
-                                sub = random.choice(free_subs)
-                                matched_entry[2] = sub + " (Substitute)"
-                                occupied[(day, slot)].add(sub)
-                            else:
-                                matched_entry[2] = teacher_name + " (Absent)"
-                        else:
-                            occupied[(day, slot)].add(teacher_name)
-
-                        timetable[day][slot] = tuple(matched_entry)
-                    else:
-                        # Fallback mapping if subject entry is not saved in DB yet
-                        timetable[day][slot] = (class_name, target, "Priya Nair", "CR-03")
-                        occupied.setdefault((day, slot), set()).add("Priya Nair")
-
-        # --- 2. FY DS & TY DS TIMETABLE (DYNAMIC WITH CLASH PREVENTION) ---
-        else:
-            assign_pool = list(assignments)
-            random.shuffle(assign_pool)
-            pool_idx = 0
-
-            for day in days:
-                for slot in slots:
-                    if "2:00 - 2:25" in slot:
-                        continue
-
-                    occupied.setdefault((day, slot), set())
-                    assigned = False
-                    attempts = 0
-                    total_assigns = len(assign_pool)
-
-                    while attempts < total_assigns:
-                        entry = list(assign_pool[pool_idx % total_assigns])
-                        teacher_name = entry[2]
-                        pool_idx += 1
-                        attempts += 1
-
-                        # Skip this teacher if they are ALREADY teaching in SY or another class at this slot
-                        if teacher_name in occupied[(day, slot)]:
-                            continue
-
-                        # Handle today's absentees
-                        if day == today_name and teacher_name in absent_teachers:
-                            free_subs = [t for t in all_teachers if t not in absent_teachers and t not in occupied[(day, slot)]]
-                            if free_subs:
-                                sub = random.choice(free_subs)
-                                entry[2] = sub + " (Substitute)"
-                                occupied[(day, slot)].add(sub)
-                                timetable[day][slot] = tuple(entry)
-                                assigned = True
-                                break
-                            else:
-                                continue
-
-                        # Normal Assignment
-                        occupied[(day, slot)].add(teacher_name)
-                        timetable[day][slot] = tuple(entry)
-                        assigned = True
-                        break
-
-                    if not assigned:
-                        timetable[day][slot] = ("Free / No Teacher", "", "", "")
-
+    for class_name in grouped:
+        timetable = {}
+        for day in days:
+            timetable[day] = {}
+            for slot in slots:
+                if "BREAK" in slot:
+                    timetable[day][slot] = ("BREAK", "", "", "")
+                else:
+                    timetable[day][slot] = None
         all_timetables[class_name] = timetable
 
-    return all_timetables
+    for day in days:
+        day_order = {}
+        for class_name in grouped:
+            shuffled = grouped[class_name][:]
+            random.shuffle(shuffled)
+            day_order[class_name] = shuffled
+
+        pointers = {class_name: 0 for class_name in grouped}
+
+        for slot in slots:
+            if "BREAK" in slot:
+                continue
+
+            occupied_teachers.setdefault((day, slot), set())
+            occupied_rooms.setdefault((day, slot), set())
+
+            for class_name in grouped:
+                assignments = day_order[class_name]
+                if not assignments:
+                    continue
+
+                total = len(assignments)
+                tries = 0
+                assigned = False
+
+                while tries < total:
+                    idx = pointers[class_name] % total
+                    entry = list(assignments[idx])
+                    pointers[class_name] += 1
+                    tries += 1
+
+                    teacher_name = entry[2]
+                    room_name = entry[3]
+
+                    if day == today_name and teacher_name in absent_teachers:
+                        available_subs = [
+                            t for t in all_teachers
+                            if t not in absent_teachers
+                            and t not in occupied_teachers[(day, slot)]
+                        ]
+                        if available_subs and room_name not in occupied_rooms[(day, slot)]:
+                            substitute = random.choice(available_subs)
+                            entry[2] = substitute + " (Substitute)"
+                            occupied_teachers[(day, slot)].add(substitute)
+                            occupied_rooms[(day, slot)].add(room_name)
+                            all_timetables[class_name][day][slot] = tuple(entry)
+                            assigned = True
+                            break
+                        else:
+                            continue
+
+                    if teacher_name in occupied_teachers[(day, slot)]:
+                        continue
+                    if room_name in occupied_rooms[(day, slot)]:
+                        continue
+
+                    occupied_teachers[(day, slot)].add(teacher_name)
+                    occupied_rooms[(day, slot)].add(room_name)
+                    all_timetables[class_name][day][slot] = tuple(entry)
+                    assigned = True
+                    break
+
+                if not assigned:
+                    all_timetables[class_name][day][slot] = ("No Slot Available", "", "", "")
+
+    def sort_key(class_name):
+        if class_name.startswith("FY"):
+            return 0
+        elif class_name.startswith("SY"):
+            return 1
+        elif class_name.startswith("TY"):
+            return 2
+        else:
+            return 3
+
+    sorted_timetables = dict(sorted(all_timetables.items(), key=lambda x: sort_key(x[0])))
+
+    return sorted_timetables
