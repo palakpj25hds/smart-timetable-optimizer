@@ -266,6 +266,44 @@ def bulk_add_assignments_v3():
     return f"Added {len(assignments)} assignments — FY, SY, TY each in their own room!"
 
 
+@app.route("/update-fy-ty-subjects")
+def update_fy_ty_subjects():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM teachers WHERE teacher_name = ?", ("Nutan Sawant",))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO teachers (teacher_name, email, department) VALUES (?, ?, ?)",
+            ("Nutan Sawant", "nutan@sies.edu", "Data Science")
+        )
+
+    cursor.execute("DELETE FROM assignments WHERE class_name = 'FY DS'")
+    cursor.execute("DELETE FROM assignments WHERE class_name = 'TY DS'")
+
+    new_assignments = [
+        ("FY DS", "FDS", "Rashmi Prabha", "CR-02"),
+        ("FY DS", "Python Programming", "Nutan Sawant", "CR-02"),
+        ("FY DS", "Descriptive Statistics", "Varsha Shinde", "CR-02"),
+        ("FY DS", "SIES Development", "Tina Tommy", "CR-02"),
+
+        ("TY DS", "Big Data Analytics", "Suresh Patil", "CR-04"),
+        ("TY DS", "Deep Learning", "Vishal Kumar", "CR-04"),
+        ("TY DS", "Natural Language Processing (NLP)", "Rashmi Prabha", "CR-04"),
+    ]
+
+    for class_name, subject_name, teacher_name, room_name in new_assignments:
+        cursor.execute("""
+        INSERT INTO assignments (class_name, subject_name, teacher_name, room_name)
+        VALUES (?, ?, ?, ?)
+        """, (class_name, subject_name, teacher_name, room_name))
+
+    conn.commit()
+    conn.close()
+
+    return f"Updated! FY and TY subjects changed, SY untouched. Added {len(new_assignments)} assignments."
+
+
 @app.route("/view_assignments")
 def view_assignments():
     conn = sqlite3.connect("database.db")
