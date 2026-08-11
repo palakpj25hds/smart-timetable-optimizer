@@ -230,4 +230,170 @@ def save_assignment():
     return "Assignment Saved Successfully!"
 
 
-@app.route("/bul
+@app.route("/bulk-add-assignments-v3")
+def bulk_add_assignments_v3():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM assignments")
+
+    assignments = [
+        ("FY DS", "DSA", "Varsha Shinde", "CR-02"),
+        ("FY DS", "DBMS", "Rashmi Prabha", "CR-02"),
+        ("FY DS", "ML", "Tina Tommy", "CR-02"),
+        ("FY DS", "AEC1 - English", "Palak Jadhav", "CR-02"),
+
+        ("SY DS", "DSA", "Sana Chougule", "CR-03"),
+        ("SY DS", "Statistical Inference", "Anita Desai", "CR-03"),
+        ("SY DS", "CC - SIES Development", "Ramesh Iyer", "CR-03"),
+        ("SY DS", "OE1 - Social Media Marketing", "Priya Nair", "CR-03"),
+
+        ("TY DS", "DBMS", "Suresh Patil", "CR-04"),
+        ("TY DS", "ML", "Vishal Kumar", "CR-04"),
+        ("TY DS", "OE2 - Brand Management", "Varsha Shinde", "CR-04"),
+        ("TY DS", "AEC2 - Hindi", "Rashmi Prabha", "CR-04"),
+    ]
+
+    for class_name, subject_name, teacher_name, room_name in assignments:
+        cursor.execute("""
+        INSERT INTO assignments (class_name, subject_name, teacher_name, room_name)
+        VALUES (?, ?, ?, ?)
+        """, (class_name, subject_name, teacher_name, room_name))
+
+    conn.commit()
+    conn.close()
+
+    return f"Added {len(assignments)} assignments — FY, SY, TY each in their own room!"
+
+
+@app.route("/view_assignments")
+def view_assignments():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM assignments")
+    assignments = cursor.fetchall()
+    conn.close()
+
+    return render_template("view_assignments.html", assignments=assignments)
+
+
+# ---------------- GENERATE ----------------
+
+@app.route("/generate")
+def generate():
+    all_timetables = generate_timetable()
+    return render_template(
+        "timetable.html",
+        all_timetables=all_timetables
+    )
+
+
+# ---------------- SET PASSWORD ----------------
+
+@app.route("/set-password-page")
+def set_password_page():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT teacher_name FROM teachers")
+    teachers = cursor.fetchall()
+    conn.close()
+
+    return render_template("set_password.html", teachers=teachers)
+
+
+@app.route("/save_password", methods=["POST"])
+def save_password():
+    teacher_name = request.form["teacher_name"]
+    password = request.form["password"]
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE teachers SET password = ? WHERE teacher_name = ?",
+        (password, teacher_name)
+    )
+    conn.commit()
+    conn.close()
+
+    return "Password Set Successfully!"
+
+
+# ---------------- TEACHER LOGIN ----------------
+
+@app.route("/teacher-login", methods=["GET", "POST"])
+def teacher_login():
+    if request.method == "POST":
+        try:
+            teacher_name = request.form["teacher_name"]
+            password = request.form["password"]
+
+            conn = sqlite3.connect("database.db")
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM teachers WHERE teacher_name = ? AND password = ?",
+                (teacher_name, password)
+            )
+            teacher = cursor.fetchone()
+            conn.close()
+
+            if teacher:
+                session["teacher_name"] = teacher_name
+                return redirect(url_for("teacher_dashboard"))
+            else:
+                return "Invalid name or password. <a href='/teacher-login'>Try again</a>"
+        except Exception as e:
+            return f"ERROR: {str(e)}"
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT teacher_name FROM teachers")
+    teachers = cursor.fetchall()
+    conn.close()
+
+    return render_template("teacher_login.html", teachers=teachers)
+
+
+@app.route("/teacher-dashboard")
+def teacher_dashboard():
+    try:
+        if "teacher_name" not in session:
+            return redirect(url_for("teacher_login"))
+
+        return render_template("teacher_dashboard.html", teacher_name=session["teacher_name"])
+    except Exception as e:
+        return f"ERROR: {str(e)}"
+
+
+@app.route("/mark-absent-today", methods=["POST"])
+def mark_absent_today():
+    try:
+        if "teacher_name" not in session:
+            return redirect(url_for("teacher_login"))
+
+        teacher_name = session["teacher_name"]
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO attendance (teacher_name, date, status) VALUES (?, ?, ?)",
+            (teacher_name, today, "absent")
+        )
+        conn.commit()
+        conn.close()
+
+        return f"{teacher_name} marked absent for today. Substitutes assigned automatically. <a href='/generate'>View Timetable</a>"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
+
+
+@app.route("/teacher-logout")
+def teacher_logout():
+    session.pop("teacher_name", None)
+    return redirect(url_for("teacher_login"))
+
+
+# ---------------- RUN APP ----------------
+
+if __name__ == "__main__":
+    app.run(debug=True)
