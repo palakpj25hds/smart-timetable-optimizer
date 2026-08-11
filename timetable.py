@@ -48,12 +48,16 @@ def generate_timetable():
                     timetable[day][slot] = None
         all_timetables[class_name] = timetable
 
-    for day in days:
+    for day_index, day in enumerate(days):
         day_order = {}
         for class_name in grouped:
             shuffled = grouped[class_name][:]
+            # Force a different random seed each day so order truly changes
+            random.seed(hash(day) + day_index + hash(class_name))
             random.shuffle(shuffled)
             day_order[class_name] = shuffled
+
+        random.seed()  # reset randomness back to normal after seeding
 
         pointers = {class_name: 0 for class_name in grouped}
 
