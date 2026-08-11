@@ -290,6 +290,7 @@ def update_fy_ty_subjects():
         ("TY DS", "Big Data Analytics", "Suresh Patil", "CR-04"),
         ("TY DS", "Deep Learning", "Vishal Kumar", "CR-04"),
         ("TY DS", "Natural Language Processing (NLP)", "Rashmi Prabha", "CR-04"),
+        ("TY DS", "Research Methodology in Data Science", "Palak Jadhav", "CR-04"),
     ]
 
     for class_name, subject_name, teacher_name, room_name in new_assignments:
