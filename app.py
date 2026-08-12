@@ -25,7 +25,6 @@ def ensure_database_ready():
     )
     """)
 
-    # ---- FORCE RESET teachers and assignments EVERY TIME APP STARTS ----
     cursor.execute("DELETE FROM teachers")
     cursor.execute("DELETE FROM assignments")
 
@@ -211,6 +210,34 @@ def view_assignments():
 def generate():
     all_timetables = generate_timetable()
     return render_template("timetable.html", all_timetables=all_timetables)
+
+
+@app.route("/admin-dashboard")
+def admin_dashboard():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM teachers")
+    total_teachers = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM classes")
+    total_classes = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM assignments")
+    total_assignments = cursor.fetchone()[0]
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    cursor.execute("SELECT teacher_name FROM attendance WHERE date = ? AND status = 'absent'", (today,))
+    absent_today = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("admin_dashboard.html",
+        total_teachers=total_teachers,
+        total_classes=total_classes,
+        total_assignments=total_assignments,
+        absent_today=absent_today
+    )
 
 
 @app.route("/set-password-page")
