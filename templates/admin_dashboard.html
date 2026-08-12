@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+    <div>
+        <a href="/">Home</a>
+    </div>
+</nav>
+
+<h1>Admin Dashboard</h1>
+
+<div>
+    <p><b>Total Teachers:</b> {{ total_teachers }}</p>
+    <p><b>Total Classes:</b> {{ total_classes }}</p>
+    <p><b>Total Assignments:</b> {{ total_assignments }}</p>
+</div>
+
+<h2>Teachers Absent Today</h2>
+{% if absent_today %}
+    <ul>
+    {% for t in absent_today %}
+        <li>{{ t[0] }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No teachers absent today.</p>
+{% endif %}
+
+</body>
+</html>
