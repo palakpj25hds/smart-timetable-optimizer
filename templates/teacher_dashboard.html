@@ -16,6 +16,29 @@
 
 <h1>Welcome, {{ teacher_name }}</h1>
 
+<p>Today is <b>{{ today_name }}</b></p>
+
+<h2>Your Subjects</h2>
+
+{% if today_classes %}
+<table border="1">
+    <tr>
+        <th>Class</th>
+        <th>Subject</th>
+        <th>Room</th>
+    </tr>
+    {% for class_name, subject_name, room_name in today_classes %}
+    <tr>
+        <td>{{ class_name }}</td>
+        <td>{{ subject_name }}</td>
+        <td>{{ room_name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>You have no assigned subjects.</p>
+{% endif %}
+
 <form action="/mark-absent-today" method="POST">
     <button type="submit">Mark Yourself Absent (Today)</button>
 </form>
