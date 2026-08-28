@@ -4,6 +4,67 @@
 <head>
     <title>Smart Timetable Optimizer</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            width: 220px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #1e3a5f;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .search-box {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .search-box input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 200px;
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            background-color: #1e6fb0;
+            color: white;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+    </style>
 </head>
 
 <body>
@@ -39,16 +100,16 @@
         </p>
 
         <a href="/generate">
-    <button>Generate Timetable</button>
-</a>
+            <button>Generate Timetable</button>
+        </a>
 
-        <br><br>
-
-        <form action="/generate" method="GET">
-            <label>Quick Search: Jump to your class timetable</label><br>
-            <input type="text" name="class_name" placeholder="e.g. FY, SY, TY" required>
-            <button type="submit">Search</button>
-        </form>
+        <div class="search-box">
+            <form action="/generate" method="GET" style="display: inline;">
+                <label>Quick Search: Jump to your class timetable</label><br><br>
+                <input type="text" name="class_name" placeholder="e.g. FY, SY, TY" required>
+                <button type="submit">Search</button>
+            </form>
+        </div>
 
     </section>
 
@@ -56,5 +117,37 @@
     <!-- Features -->
     <section class="features">
 
-        <div class="card">
-            <h3> Teachers</h3>
+        <a href="/teacher" class="card-link">
+            <div class="card">
+                <h3>Teachers</h3>
+                <p>Manage teacher availability and workload.</p>
+            </div>
+        </a>
+
+        <a href="/subject" class="card-link">
+            <div class="card">
+                <h3>Subjects</h3>
+                <p>Add subjects and assign required periods.</p>
+            </div>
+        </a>
+
+        <a href="/classroom" class="card-link">
+            <div class="card">
+                <h3>Classrooms</h3>
+                <p>Manage classrooms and laboratory rooms.</p>
+            </div>
+        </a>
+
+        <a href="/generate" class="card-link">
+            <div class="card">
+                <h3>Generate</h3>
+                <p>Create an optimized timetable automatically.</p>
+            </div>
+        </a>
+
+    </section>
+
+
+</body>
+
+</html>
