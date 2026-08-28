@@ -21,10 +21,21 @@
 
 <h1>Generated Timetable</h1>
 
+{% if matched_class %}
+<script>
+window.onload = function() {
+    var el = document.getElementById("{{ matched_class }}");
+    if (el) {
+        el.scrollIntoView();
+    }
+};
+</script>
+{% endif %}
+
 
 {% for class_name, timetable in all_timetables.items() %}
 
-<h2>{{ class_name }}</h2>
+<h2 id="{{ class_name }}">{{ class_name }}</h2>
 
 <table border="1">
 
