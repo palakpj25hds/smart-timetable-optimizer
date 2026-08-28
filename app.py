@@ -209,7 +209,19 @@ def view_assignments():
 @app.route("/generate")
 def generate():
     all_timetables = generate_timetable()
-    return render_template("timetable.html", all_timetables=all_timetables)
+    search_class = request.args.get("class_name", "").strip().upper()
+
+    matched_class = None
+    for class_name in all_timetables:
+        if search_class and search_class in class_name.upper():
+            matched_class = class_name
+            break
+
+    return render_template(
+        "timetable.html",
+        all_timetables=all_timetables,
+        matched_class=matched_class
+    )
 
 
 @app.route("/admin-dashboard")
