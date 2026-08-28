@@ -211,16 +211,16 @@ def generate():
     all_timetables = generate_timetable()
     search_class = request.args.get("class_name", "").strip().upper()
 
-    matched_class = None
-    for class_name in all_timetables:
-        if search_class and search_class in class_name.upper():
-            matched_class = class_name
-            break
+    if search_class:
+        filtered_timetables = {}
+        for class_name in all_timetables:
+            if search_class in class_name.upper():
+                filtered_timetables[class_name] = all_timetables[class_name]
+        all_timetables = filtered_timetables
 
     return render_template(
         "timetable.html",
-        all_timetables=all_timetables,
-        matched_class=matched_class
+        all_timetables=all_timetables
     )
 
 
