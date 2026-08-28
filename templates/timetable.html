@@ -4,6 +4,48 @@
 <head>
     <title>Generated Timetable</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background-color: #1e3a5f;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f6fa;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .break-cell {
+            background-color: #ffe8b3 !important;
+            font-weight: bold;
+        }
+
+        .substitute-cell {
+            background-color: #fff3b0 !important;
+            border: 2px solid #f0a500;
+        }
+
+        h2 {
+            color: #1e3a5f;
+            margin-top: 30px;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,21 +63,10 @@
 
 <h1>Generated Timetable</h1>
 
-{% if matched_class %}
-<script>
-window.onload = function() {
-    var el = document.getElementById("{{ matched_class }}");
-    if (el) {
-        el.scrollIntoView();
-    }
-};
-</script>
-{% endif %}
-
 
 {% for class_name, timetable in all_timetables.items() %}
 
-<h2 id="{{ class_name }}">{{ class_name }}</h2>
+<h2>{{ class_name }}</h2>
 
 <table border="1">
 
@@ -58,31 +89,39 @@ window.onload = function() {
 
 {% for time, assignment in slots.items() %}
 
-<td>
-
 {% if assignment %}
 
     {% if assignment[0] == "BREAK" %}
 
-        <b>BREAK</b>
+        <td class="break-cell">
+            <b>BREAK</b>
+        </td>
+
+    {% elif "(Substitute)" in assignment[2] %}
+
+        <td class="substitute-cell">
+            <b>{{ assignment[0] }}</b><br>
+            {{ assignment[1] }}<br>
+            {{ assignment[2] }}<br>
+            Room: {{ assignment[3] }}
+        </td>
 
     {% else %}
 
-        <b>{{ assignment[0] }}</b><br>
-        {{ assignment[1] }}<br>
-        {{ assignment[2] }}<br>
-        Room: {{ assignment[3] }}
+        <td>
+            <b>{{ assignment[0] }}</b><br>
+            {{ assignment[1] }}<br>
+            {{ assignment[2] }}<br>
+            Room: {{ assignment[3] }}
+        </td>
 
     {% endif %}
 
 {% else %}
 
-    Free
+    <td>Free</td>
 
 {% endif %}
-
-
-</td>
 
 
 {% endfor %}
