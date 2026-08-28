@@ -254,27 +254,30 @@ def admin_dashboard():
 
 @app.route("/attendance-analytics")
 def attendance_analytics():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT teacher_name, COUNT(*) as absent_count
-        FROM attendance
-        WHERE status = 'absent'
-        GROUP BY teacher_name
-        ORDER BY absent_count DESC
-    """)
-    teacher_absences = cursor.fetchall()
+        cursor.execute("""
+            SELECT teacher_name, COUNT(*) as absent_count
+            FROM attendance
+            WHERE status = 'absent'
+            GROUP BY teacher_name
+            ORDER BY absent_count DESC
+        """)
+        teacher_absences = cursor.fetchall()
 
-    cursor.execute("SELECT COUNT(*) FROM attendance WHERE status = 'absent'")
-    total_absences = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM attendance WHERE status = 'absent'")
+        total_absences = cursor.fetchone()[0]
 
-    conn.close()
+        conn.close()
 
-    return render_template("attendance_analytics.html",
-        teacher_absences=teacher_absences,
-        total_absences=total_absences
-    )
+        return render_template("attendance_analytics.html",
+            teacher_absences=teacher_absences,
+            total_absences=total_absences
+        )
+    except Exception as e:
+        return f"ERROR: {str(e)}"
 
 
 @app.route("/set-password-page")
