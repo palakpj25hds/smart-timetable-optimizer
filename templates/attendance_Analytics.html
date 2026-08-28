@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Analytics</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav>
+    <h2>Smart Timetable Optimizer</h2>
+    <div>
+        <a href="/">Home</a>
+        <a href="/admin-dashboard">Admin Dashboard</a>
+    </div>
+</nav>
+
+<h1>Attendance Analytics</h1>
+
+<p><b>Total Absences Recorded:</b> {{ total_absences }}</p>
+
+<h2>Teacher-wise Absence Count</h2>
+
+{% if teacher_absences %}
+<table border="1">
+    <tr>
+        <th>Teacher Name</th>
+        <th>Times Absent</th>
+    </tr>
+    {% for teacher_name, count in teacher_absences %}
+    <tr>
+        <td>{{ teacher_name }}</td>
+        <td>{{ count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No attendance records yet.</p>
+{% endif %}
+
+</body>
+</html>
