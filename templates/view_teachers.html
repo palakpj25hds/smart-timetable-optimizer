@@ -29,6 +29,7 @@
     <th>Name</th>
     <th>Email</th>
     <th>Department</th>
+    <th>Action</th>
 </tr>
 
 {% for teacher in teachers %}
@@ -38,6 +39,7 @@
     <td>{{ teacher[1] }}</td>
     <td>{{ teacher[2] }}</td>
     <td>{{ teacher[3] }}</td>
+    <td><a href="/delete-teacher/{{ teacher[0] }}" onclick="return confirm('Delete this teacher?')">Delete</a></td>
 </tr>
 
 {% endfor %}
