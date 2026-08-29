@@ -16,6 +16,11 @@ def ensure_database_ready():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE classes ADD COLUMN student_count INTEGER")
+    except sqlite3.OperationalError:
+        pass
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS attendance(
         attendance_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +32,8 @@ def ensure_database_ready():
 
     cursor.execute("DELETE FROM teachers")
     cursor.execute("DELETE FROM assignments")
+    cursor.execute("DELETE FROM classes")
+    cursor.execute("DELETE FROM classrooms")
 
     clean_teachers = [
         ("Varsha Shinde", "varsha@sies.edu", "Data Science"),
@@ -45,6 +52,28 @@ def ensure_database_ready():
         cursor.execute(
             "INSERT INTO teachers (teacher_name, email, department) VALUES (?, ?, ?)",
             (name, email, dept)
+        )
+
+    clean_classes = [
+        ("FY DS", 60),
+        ("SY DS", 55),
+        ("TY DS", 50)
+    ]
+    for class_name, student_count in clean_classes:
+        cursor.execute(
+            "INSERT INTO classes (class_name, student_count) VALUES (?, ?)",
+            (class_name, student_count)
+        )
+
+    clean_classrooms = [
+        ("CR-02", 65, "Classroom"),
+        ("CR-03", 60, "Classroom"),
+        ("CR-04", 55, "Classroom")
+    ]
+    for room_name, capacity, room_type in clean_classrooms:
+        cursor.execute(
+            "INSERT INTO classrooms (room_name, capacity, room_type) VALUES (?, ?, ?)",
+            (room_name, capacity, room_type)
         )
 
     assignments = [
@@ -110,6 +139,16 @@ def view_teachers():
     return render_template("view_teachers.html", teachers=teachers)
 
 
+@app.route("/delete-teacher/<int:teacher_id>")
+def delete_teacher(teacher_id):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM teachers WHERE teacher_id = ?", (teacher_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("view_teachers"))
+
+
 @app.route("/subject")
 def subject():
     return render_template("subject.html")
@@ -156,9 +195,11 @@ def class_page():
 @app.route("/save_class", methods=["POST"])
 def save_class():
     class_name = request.form["class_name"]
+    student_count = request.form.get("student_count", 0)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO classes (class_name) VALUES (?)", (class_name,))
+    cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)",
+                   (class_name, student_count))
     conn.commit()
     conn.close()
     return "Class Saved Successfully!"
@@ -187,13 +228,47 @@ def save_assignment():
     subject_name = request.form["subject_name"]
     teacher_name = request.form["teacher_name"]
     room_name = request.form["room_name"]
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("""INSERT INTO assignments (class_name, subject_name, teacher_name, room_name)
-    VALUES (?, ?, ?, ?)""", (class_name, subject_name, teacher_name, room_name))
+
+    cursor.execute("SELECT student_count FROM classes WHERE class_name = ?", (class_name,))
+    class_data = cursor.fetchone()
+    class_strength = class_data[0] if class_data and class_data[0] else 0
+
+    cursor.execute("SELECT capacity FROM classrooms WHERE room_name = ?", (room_name,))
+    room_data = cursor.fetchone()
+    room_capacity = room_data[0] if room_data and room_data[0] else 0
+
+    warning = ""
+    if class_strength and room_capacity and class_strength > room_capacity:
+        warning = f"Warning: Class strength ({class_strength}) exceeds room capacity ({room_capacity})!"
+
+    cursor.execute("""
+    INSERT INTO assignments (class_name, subject_name, teacher_name, room_name)
+    VALUES (?, ?, ?, ?)
+    """, (class_name, subject_name, teacher_name, room_name))
     conn.commit()
     conn.close()
-    return "Assignment Saved Successfully!"
+
+    if warning:
+        return f"""
+        <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#f8d7da; 
+        border:2px solid #dc3545; border-radius:10px; text-align:center; font-family:sans-serif;">
+            <h2 style="color:#dc3545;">Assignment Saved (with warning)</h2>
+            <p>{warning}</p>
+            <a href="/assignment" style="color:#1e6fb0;">Back to Assignments</a>
+        </div>
+        """
+    else:
+        return """
+        <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#d4edda; 
+        border:2px solid #28a745; border-radius:10px; text-align:center; font-family:sans-serif;">
+            <h2 style="color:#28a745;">Success!</h2>
+            <p>Assignment saved successfully.</p>
+            <a href="/assignment" style="color:#1e6fb0;">Back to Assignments</a>
+        </div>
+        """
 
 
 @app.route("/view_assignments")
@@ -204,6 +279,16 @@ def view_assignments():
     assignments = cursor.fetchall()
     conn.close()
     return render_template("view_assignments.html", assignments=assignments)
+
+
+@app.route("/delete-assignment/<int:assignment_id>")
+def delete_assignment(assignment_id):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM assignments WHERE assignment_id = ?", (assignment_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("view_assignments"))
 
 
 @app.route("/generate")
