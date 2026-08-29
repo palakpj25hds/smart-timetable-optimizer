@@ -218,9 +218,12 @@ def generate():
                 filtered_timetables[class_name] = all_timetables[class_name]
         all_timetables = filtered_timetables
 
+    current_date = datetime.now().strftime("%A, %d %B %Y")
+
     return render_template(
         "timetable.html",
-        all_timetables=all_timetables
+        all_timetables=all_timetables,
+        current_date=current_date
     )
 
 
@@ -299,7 +302,14 @@ def save_password():
     cursor.execute("UPDATE teachers SET password = ? WHERE teacher_name = ?", (password, teacher_name))
     conn.commit()
     conn.close()
-    return "Password Set Successfully!"
+    return """
+    <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#d4edda; 
+    border:2px solid #28a745; border-radius:10px; text-align:center; font-family:sans-serif;">
+        <h2 style="color:#28a745;">Success!</h2>
+        <p>Password has been set successfully.</p>
+        <a href="/" style="color:#1e6fb0;">Go to Home</a>
+    </div>
+    """
 
 
 @app.route("/teacher-login", methods=["GET", "POST"])
@@ -371,7 +381,15 @@ def mark_absent_today():
                        (teacher_name, today, "absent"))
         conn.commit()
         conn.close()
-        return f"{teacher_name} marked absent for today. Substitutes assigned automatically. <a href='/generate'>View Timetable</a>"
+        return f"""
+        <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#fff3cd; 
+        border:2px solid #f0a500; border-radius:10px; text-align:center; font-family:sans-serif;">
+            <h2 style="color:#f0a500;">Marked Absent</h2>
+            <p><b>{teacher_name}</b> has been marked absent for today.</p>
+            <p>Substitutes have been assigned automatically.</p>
+            <a href="/generate" style="color:#1e6fb0;">View Updated Timetable</a>
+        </div>
+        """
     except Exception as e:
         return f"ERROR: {str(e)}"
 
