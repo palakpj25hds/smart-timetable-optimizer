@@ -240,8 +240,6 @@ def save_assignment():
     room_data = cursor.fetchone()
     room_capacity = room_data[0] if room_data and room_data[0] else 0
 
-    debug_info = f"DEBUG INFO -> class_name: '{class_name}', class_strength: {class_strength}, room_name: '{room_name}', room_capacity: {room_capacity}"
-
     warning = ""
     if class_strength and room_capacity and class_strength > room_capacity:
         warning = f"Warning: Class strength ({class_strength}) exceeds room capacity ({room_capacity})!"
@@ -253,14 +251,24 @@ def save_assignment():
     conn.commit()
     conn.close()
 
-    return f"""
-    <div style="max-width:500px; margin:50px auto; padding:20px; background-color:#f0f0f0; 
-    border:2px solid #333; border-radius:10px; text-align:center; font-family:monospace;">
-        <p>{debug_info}</p>
-        <p><b>{warning if warning else "No warning triggered."}</b></p>
-        <a href="/assignment">Back to Assignments</a>
-    </div>
-    """
+    if warning:
+        return f"""
+        <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#f8d7da; 
+        border:2px solid #dc3545; border-radius:10px; text-align:center; font-family:sans-serif;">
+            <h2 style="color:#dc3545;">Assignment Saved (with warning)</h2>
+            <p>{warning}</p>
+            <a href="/assignment" style="color:#1e6fb0;">Back to Assignments</a>
+        </div>
+        """
+    else:
+        return """
+        <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#d4edda; 
+        border:2px solid #28a745; border-radius:10px; text-align:center; font-family:sans-serif;">
+            <h2 style="color:#28a745;">Success!</h2>
+            <p>Assignment saved successfully.</p>
+            <a href="/assignment" style="color:#1e6fb0;">Back to Assignments</a>
+        </div>
+        """
 
 
 @app.route("/view_assignments")
