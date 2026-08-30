@@ -313,11 +313,13 @@ def generate():
         all_timetables = filtered_timetables
 
     current_date = datetime.now().strftime("%A, %d %B %Y")
+    current_day = datetime.now().strftime("%A")
 
     return render_template(
         "timetable.html",
         all_timetables=all_timetables,
-        current_date=current_date
+        current_date=current_date,
+        current_day=current_day
     )
 
 
