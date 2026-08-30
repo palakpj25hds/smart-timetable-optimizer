@@ -63,7 +63,9 @@
 
 <h1>Generated Timetable</h1>
 
-<p><b>Showing schedule for:</b> {{ current_date }}</p>
+{% if current_day != "Sunday" %}
+<p><b>Today is:</b> {{ current_date }}</p>
+{% endif %}
 
 
 {% for class_name, timetable in all_timetables.items() %}
