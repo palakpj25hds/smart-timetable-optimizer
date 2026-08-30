@@ -198,12 +198,18 @@ def save_class():
     student_count = request.form.get("student_count", 0)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)",
-                   (class_name, student_count))
+    
+    cursor.execute("SELECT * FROM classes WHERE class_name = ?", (class_name,))
+    existing = cursor.fetchone()
+    
+    if existing:
+        cursor.execute("UPDATE classes SET student_count = ? WHERE class_name = ?", (student_count, class_name))
+    else:
+        cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)", (class_name, student_count))
+    
     conn.commit()
     conn.close()
     return "Class Saved Successfully!"
-
 
 @app.route("/assignment")
 def assignment():
