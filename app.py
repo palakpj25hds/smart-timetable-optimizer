@@ -198,18 +198,21 @@ def save_class():
     student_count = request.form.get("student_count", 0)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    
+
     cursor.execute("SELECT * FROM classes WHERE class_name = ?", (class_name,))
     existing = cursor.fetchone()
-    
+
     if existing:
-        cursor.execute("UPDATE classes SET student_count = ? WHERE class_name = ?", (student_count, class_name))
+        cursor.execute("UPDATE classes SET student_count = ? WHERE class_name = ?",
+                       (student_count, class_name))
     else:
-        cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)", (class_name, student_count))
-    
+        cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)",
+                       (class_name, student_count))
+
     conn.commit()
     conn.close()
     return "Class Saved Successfully!"
+
 
 @app.route("/assignment")
 def assignment():
@@ -465,20 +468,20 @@ def mark_absent_today():
         if "teacher_name" not in session:
             return redirect(url_for("teacher_login"))
         teacher_name = session["teacher_name"]
-        today = datetime.now().strftime("%Y-%m-%d")
+        absent_date = request.form["absent_date"]
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO attendance (teacher_name, date, status) VALUES (?, ?, ?)",
-                       (teacher_name, today, "absent"))
+                       (teacher_name, absent_date, "absent"))
         conn.commit()
         conn.close()
         return f"""
         <div style="max-width:400px; margin:50px auto; padding:20px; background-color:#fff3cd; 
         border:2px solid #f0a500; border-radius:10px; text-align:center; font-family:sans-serif;">
             <h2 style="color:#f0a500;">Marked Absent</h2>
-            <p><b>{teacher_name}</b> has been marked absent for today.</p>
-            <p>Substitutes have been assigned automatically.</p>
-            <a href="/generate" style="color:#1e6fb0;">View Updated Timetable</a>
+            <p><b>{teacher_name}</b> has been marked absent for <b>{absent_date}</b>.</p>
+            <p>Substitutes will be assigned automatically on that date.</p>
+            <a href="/generate" style="color:#1e6fb0;">View Timetable</a>
         </div>
         """
     except Exception as e:
