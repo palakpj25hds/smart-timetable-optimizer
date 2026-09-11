@@ -30,11 +30,14 @@ def generate_timetable():
     ]
 
     grouped = {}
+    subject_teachers = {}  # subject_name -> set of teachers who teach it
     for a in all_assignments:
         grouped.setdefault(a[0], []).append(list(a))
+        subject_teachers.setdefault(a[1], set()).add(a[2])
 
     occupied_teachers = {}
     occupied_rooms = {}
+    teacher_period_count = {t: 0 for t in all_teachers}  # for workload balancing
 
     all_timetables = {}
     for class_name in grouped:
@@ -48,16 +51,12 @@ def generate_timetable():
                     timetable[day][slot] = None
         all_timetables[class_name] = timetable
 
-    for day_index, day in enumerate(days):
+    for day in days:
         day_order = {}
         for class_name in grouped:
             shuffled = grouped[class_name][:]
-            # Force a different random seed each day so order truly changes
-            random.seed(hash(day) + day_index + hash(class_name))
             random.shuffle(shuffled)
             day_order[class_name] = shuffled
-
-        random.seed()  # reset randomness back to normal after seeding
 
         pointers = {class_name: 0 for class_name in grouped}
 
@@ -84,19 +83,35 @@ def generate_timetable():
                     tries += 1
 
                     teacher_name = entry[2]
+                    subject_name = entry[1]
                     room_name = entry[3]
 
                     if day == today_name and teacher_name in absent_teachers:
-                        available_subs = [
-                            t for t in all_teachers
+                        # Subject-specific substitute matching: prefer teachers who teach this subject
+                        subject_qualified = subject_teachers.get(subject_name, set())
+                        candidates = [
+                            t for t in subject_qualified
                             if t not in absent_teachers
                             and t not in occupied_teachers[(day, slot)]
+                            and t != teacher_name
                         ]
-                        if available_subs and room_name not in occupied_rooms[(day, slot)]:
-                            substitute = random.choice(available_subs)
+
+                        # Fallback: if no subject-matched teacher is free, use any free teacher
+                        if not candidates:
+                            candidates = [
+                                t for t in all_teachers
+                                if t not in absent_teachers
+                                and t not in occupied_teachers[(day, slot)]
+                                and t != teacher_name
+                            ]
+
+                        if candidates and room_name not in occupied_rooms[(day, slot)]:
+                            # Workload balancing: pick the candidate with the fewest periods so far
+                            substitute = min(candidates, key=lambda t: teacher_period_count.get(t, 0))
                             entry[2] = substitute + " (Substitute)"
                             occupied_teachers[(day, slot)].add(substitute)
                             occupied_rooms[(day, slot)].add(room_name)
+                            teacher_period_count[substitute] = teacher_period_count.get(substitute, 0) + 1
                             all_timetables[class_name][day][slot] = tuple(entry)
                             assigned = True
                             break
@@ -110,6 +125,7 @@ def generate_timetable():
 
                     occupied_teachers[(day, slot)].add(teacher_name)
                     occupied_rooms[(day, slot)].add(room_name)
+                    teacher_period_count[teacher_name] = teacher_period_count.get(teacher_name, 0) + 1
                     all_timetables[class_name][day][slot] = tuple(entry)
                     assigned = True
                     break
