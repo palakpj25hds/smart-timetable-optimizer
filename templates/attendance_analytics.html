@@ -37,5 +37,24 @@
 <p>No attendance records yet.</p>
 {% endif %}
 
+<h2>Monthly Absence Trend</h2>
+
+{% if monthly_trend %}
+<table border="1">
+    <tr>
+        <th>Month</th>
+        <th>Total Absences</th>
+    </tr>
+    {% for month, count in monthly_trend %}
+    <tr>
+        <td>{{ month }}</td>
+        <td>{{ count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No monthly data yet.</p>
+{% endif %}
+
 </body>
 </html>
