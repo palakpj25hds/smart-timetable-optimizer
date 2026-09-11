@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, send_file
 import sqlite3
 from datetime import datetime
 from timetable import generate_timetable
+import io
+from xhtml2pdf import pisa
 
 app = Flask(__name__)
 app.secret_key = "smart_timetable_secret_key"
@@ -323,6 +325,29 @@ def generate():
     )
 
 
+@app.route("/generate/pdf")
+def generate_pdf():
+    all_timetables = generate_timetable()
+    current_date = datetime.now().strftime("%A, %d %B %Y")
+
+    html = render_template(
+        "timetable_pdf.html",
+        all_timetables=all_timetables,
+        current_date=current_date
+    )
+
+    pdf_buffer = io.BytesIO()
+    pisa.CreatePDF(html, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+
+    return send_file(
+        pdf_buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name="timetable.pdf"
+    )
+
+
 @app.route("/admin-dashboard")
 def admin_dashboard():
     conn = sqlite3.connect("database.db")
@@ -369,11 +394,22 @@ def attendance_analytics():
         cursor.execute("SELECT COUNT(*) FROM attendance WHERE status = 'absent'")
         total_absences = cursor.fetchone()[0]
 
+        # Enhanced Analytics: monthly breakdown
+        cursor.execute("""
+            SELECT strftime('%Y-%m', date) as month, COUNT(*) as count
+            FROM attendance
+            WHERE status = 'absent'
+            GROUP BY month
+            ORDER BY month DESC
+        """)
+        monthly_trend = cursor.fetchall()
+
         conn.close()
 
         return render_template("attendance_analytics.html",
             teacher_absences=teacher_absences,
-            total_absences=total_absences
+            total_absences=total_absences,
+            monthly_trend=monthly_trend
         )
     except Exception as e:
         return f"ERROR: {str(e)}"
