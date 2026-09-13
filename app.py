@@ -328,6 +328,15 @@ def generate():
 @app.route("/generate/pdf")
 def generate_pdf():
     all_timetables = generate_timetable()
+    search_class = request.args.get("class_name", "").strip().upper()
+
+    if search_class:
+        filtered_timetables = {}
+        for class_name in all_timetables:
+            if search_class in class_name.upper():
+                filtered_timetables[class_name] = all_timetables[class_name]
+        all_timetables = filtered_timetables
+
     current_date = datetime.now().strftime("%A, %d %B %Y")
 
     html = render_template(
@@ -340,11 +349,13 @@ def generate_pdf():
     pisa.CreatePDF(html, dest=pdf_buffer)
     pdf_buffer.seek(0)
 
+    filename = f"{search_class}_timetable.pdf" if search_class else "timetable.pdf"
+
     return send_file(
         pdf_buffer,
         mimetype="application/pdf",
         as_attachment=True,
-        download_name="timetable.pdf"
+        download_name=filename
     )
 
 
@@ -394,7 +405,6 @@ def attendance_analytics():
         cursor.execute("SELECT COUNT(*) FROM attendance WHERE status = 'absent'")
         total_absences = cursor.fetchone()[0]
 
-        # Enhanced Analytics: monthly breakdown
         cursor.execute("""
             SELECT strftime('%Y-%m', date) as month, COUNT(*) as count
             FROM attendance
