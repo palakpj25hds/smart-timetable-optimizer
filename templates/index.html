@@ -71,6 +71,25 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
+        .pdf-buttons {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .pdf-buttons a {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 5px;
+            color: white;
+        }
+
+        .pdf-fy { background-color: #1e6fb0; }
+        .pdf-sy { background-color: #1e6fb0; }
+        .pdf-ty { background-color: #1e6fb0; }
+        .pdf-all { background-color: #28a745; }
     </style>
 </head>
 
@@ -132,6 +151,14 @@
                 <input type="text" name="class_name" placeholder="e.g. FY, SY, TY" required>
                 <button type="submit">Search</button>
             </form>
+        </div>
+
+        <div class="pdf-buttons">
+            <p><b>Download Timetable PDF:</b></p>
+            <a href="/generate/pdf?class_name=FY" class="pdf-fy">FY Only</a>
+            <a href="/generate/pdf?class_name=SY" class="pdf-sy">SY Only</a>
+            <a href="/generate/pdf?class_name=TY" class="pdf-ty">TY Only</a>
+            <a href="/generate/pdf" class="pdf-all">All Classes</a>
         </div>
 
     </section>
