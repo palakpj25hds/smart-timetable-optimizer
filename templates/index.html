@@ -104,10 +104,10 @@
             <a href="/teacher">Teachers</a>
             <a href="/view_teachers">View Teachers</a>
             <a href="/subject">Subjects</a>
-            <a href="/classroom">Classrooms</a>
-            <a href="/class">Classes</a>
-            <a href="/assignment">Assignments</a>
-            <a href="/view_assignments">View Assignments</a>
+            <a href="/classroom">Rooms</a>
+            <a href="/class">Batches</a>
+            <a href="/assignment">Schedule Links</a>
+            <a href="/view_assignments">View Schedule Links</a>
             <a href="/set-password-page">Set Password</a>
             <a href="/teacher-login">Teacher Login</a>
             <a href="/admin-dashboard">Admin Dashboard</a>
@@ -147,7 +147,7 @@
 
         <div class="search-box">
             <form action="/generate" method="GET" style="display: inline;">
-                <label>Quick Search: Jump to your class timetable</label><br><br>
+                <label>Quick Search: Jump to your batch timetable</label><br><br>
                 <input type="text" name="class_name" placeholder="e.g. FY, SY, TY" required>
                 <button type="submit">Search</button>
             </form>
@@ -158,7 +158,7 @@
             <a href="/generate/pdf?class_name=FY" class="pdf-fy">FY Only</a>
             <a href="/generate/pdf?class_name=SY" class="pdf-sy">SY Only</a>
             <a href="/generate/pdf?class_name=TY" class="pdf-ty">TY Only</a>
-            <a href="/generate/pdf" class="pdf-all">All Classes</a>
+            <a href="/generate/pdf" class="pdf-all">All Batches</a>
         </div>
 
     </section>
@@ -183,8 +183,8 @@
 
         <a href="/classroom" class="card-link">
             <div class="card">
-                <h3>Classrooms</h3>
-                <p>Manage classrooms and laboratory rooms.</p>
+                <h3>Rooms</h3>
+                <p>Manage rooms and laboratory spaces.</p>
             </div>
         </a>
 
