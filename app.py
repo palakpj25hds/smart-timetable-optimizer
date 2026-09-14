@@ -243,7 +243,7 @@ def save_assignment():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT student_count FROM classes WHERE class_name = ?", (class_name,))
+    cursor.execute("SELECT student_count FROM classes WHERE UPPER(class_name) = UPPER(?)", (class_name,))
     class_data = cursor.fetchone()
     class_strength = class_data[0] if class_data and class_data[0] else 0
 
