@@ -196,16 +196,16 @@ def class_page():
 
 @app.route("/save_class", methods=["POST"])
 def save_class():
-    class_name = request.form["class_name"]
+    class_name = request.form["class_name"].strip().upper()
     student_count = request.form.get("student_count", 0)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM classes WHERE class_name = ?", (class_name,))
+    cursor.execute("SELECT * FROM classes WHERE UPPER(class_name) = ?", (class_name,))
     existing = cursor.fetchone()
 
     if existing:
-        cursor.execute("UPDATE classes SET student_count = ? WHERE class_name = ?",
+        cursor.execute("UPDATE classes SET student_count = ? WHERE UPPER(class_name) = ?",
                        (student_count, class_name))
     else:
         cursor.execute("INSERT INTO classes (class_name, student_count) VALUES (?, ?)",
