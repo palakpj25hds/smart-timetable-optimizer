@@ -1,8 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Class</title>
+    <title>Add Batch</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .form-container h1 {
+            color: #1e3a5f;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1e6fb0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #155a8f;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,23 +62,25 @@
         <a href="/">Home</a>
         <a href="/teacher">Teachers</a>
         <a href="/subject">Subjects</a>
-        <a href="/classroom">Classrooms</a>
+        <a href="/classroom">Rooms</a>
     </div>
 </nav>
 
-<h1>Add Class</h1>
+<div class="form-container">
+    <h1>Add Batch</h1>
 
-<form action="/save_class" method="POST">
+    <form action="/save_class" method="POST">
 
-    <label>Class Name:</label><br>
-    <input type="text" name="class_name" required><br><br>
+        <label>Batch Name:</label>
+        <input type="text" name="class_name" required>
 
-    <label>Number of Students:</label><br>
-    <input type="number" name="student_count"><br><br>
+        <label>Number of Students:</label>
+        <input type="number" name="student_count">
 
-    <button type="submit">Save Class</button>
+        <button type="submit">Save Batch</button>
 
-</form>
+    </form>
+</div>
 
 </body>
 </html>
