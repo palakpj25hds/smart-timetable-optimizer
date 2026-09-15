@@ -36,6 +36,7 @@ def ensure_database_ready():
     cursor.execute("DELETE FROM assignments")
     cursor.execute("DELETE FROM classes")
     cursor.execute("DELETE FROM classrooms")
+    cursor.execute("DELETE FROM subjects")
 
     clean_teachers = [
         ("Varsha Shinde", "varsha@sies.edu", "Data Science"),
@@ -76,6 +77,26 @@ def ensure_database_ready():
         cursor.execute(
             "INSERT INTO classrooms (room_name, capacity, room_type) VALUES (?, ?, ?)",
             (room_name, capacity, room_type)
+        )
+
+    clean_subjects = [
+        ("FDS", "Data Science", 4),
+        ("Python Programming", "Data Science", 4),
+        ("Descriptive Statistics", "Data Science", 4),
+        ("SIES Development", "Data Science", 4),
+        ("DSA", "Data Science", 4),
+        ("Statistical Inference", "Data Science", 4),
+        ("CC - SIES Development", "Data Science", 4),
+        ("OE1 - Social Media Marketing", "Data Science", 4),
+        ("Big Data Analytics", "Data Science", 4),
+        ("Deep Learning", "Data Science", 4),
+        ("Natural Language Processing (NLP)", "Data Science", 4),
+        ("Research Methodology in Data Science", "Data Science", 4),
+    ]
+    for subject_name, department, periods in clean_subjects:
+        cursor.execute(
+            "INSERT INTO subjects (subject_name, department, periods) VALUES (?, ?, ?)",
+            (subject_name, department, periods)
         )
 
     assignments = [
